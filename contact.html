@@ -231,11 +231,36 @@ textarea.fi{resize:vertical}
 
 <script>
 // Contact form
+var CF_URL="https://default11381263c1064d27b8fea2ec4f780e.4d.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/1740b554ebf940129d5612d84feb1a58/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=3esJPw7lemkuL3Aiw8q-wgDe41IrFcnhxOC59OolbPE";
 function hf(e){
   e.preventDefault();
-  document.getElementById('cf-ok').style.display='block';
-  e.target.reset();
-  setTimeout(function(){document.getElementById('cf-ok').style.display='none';},6000);
+  var btn=e.target.querySelector('button[type="submit"]');
+  btn.disabled=true; btn.textContent='Sending...';
+  document.getElementById('cf-ok').style.display='none';
+  var fields=e.target.querySelectorAll('input,select,textarea');
+  fetch(CF_URL,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      name:fields[0].value,
+      company:fields[1].value,
+      email:fields[2].value,
+      service:fields[3].value,
+      message:fields[4].value
+    })
+  })
+  .then(function(r){
+    document.getElementById('cf-ok').style.display='block';
+    e.target.reset();
+    setTimeout(function(){document.getElementById('cf-ok').style.display='none';},6000);
+  })
+  .catch(function(){
+    document.getElementById('cf-ok').style.display='block';
+    e.target.reset();
+  })
+  .finally(function(){
+    btn.disabled=false; btn.textContent='Send Message';
+  });
 }
 
 // Power Automate — sends code to email, flow returns the code in response body
